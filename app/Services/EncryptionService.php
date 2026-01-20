@@ -26,7 +26,7 @@ class EncryptionService
             return Crypt::encryptString($value);
         } catch (\Exception $e) {
             \Log::error('Encryption failed: ' . $e->getMessage());
-            return $value; // Fallback to unencrypted if encryption fails
+            throw new \RuntimeException('Failed to encrypt sensitive data. Data not stored.', 0, $e);
         }
     }
 

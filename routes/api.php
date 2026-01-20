@@ -40,26 +40,26 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     
     // Approval Workflow Routes
     Route::prefix('approvals')->group(function () {
-        Route::get('/', 'ApprovalController@index');
-        Route::post('/{pds}/submit', 'ApprovalController@submit');
-        Route::post('/{workflow}/approve', 'ApprovalController@approve');
-        Route::post('/{workflow}/reject', 'ApprovalController@reject');
-        Route::post('/{workflow}/reassign', 'ApprovalController@reassign');
+        Route::get('/', [App\Http\Controllers\Api\ApprovalController::class, 'index']);
+        Route::post('/{pds}/submit', [App\Http\Controllers\Api\ApprovalController::class, 'submit']);
+        Route::post('/{workflow}/approve', [App\Http\Controllers\Api\ApprovalController::class, 'approve']);
+        Route::post('/{workflow}/reject', [App\Http\Controllers\Api\ApprovalController::class, 'reject']);
+        Route::post('/{workflow}/reassign', [App\Http\Controllers\Api\ApprovalController::class, 'reassign']);
     });
     
     // Recruitment Routes
     Route::prefix('recruitment')->group(function () {
-        Route::get('/qualification-standards', 'RecruitmentController@qualificationStandards');
-        Route::post('/rank/{standard}', 'RecruitmentController@rankCandidates');
-        Route::get('/rankings/{standard}', 'RecruitmentController@rankings');
-        Route::post('/assess-readiness/{pds}/{standard}', 'RecruitmentController@assessReadiness');
+        Route::get('/qualification-standards', [App\Http\Controllers\Api\RecruitmentController::class, 'qualificationStandards']);
+        Route::post('/rank/{standard}', [App\Http\Controllers\Api\RecruitmentController::class, 'rankCandidates']);
+        Route::get('/rankings/{standard}', [App\Http\Controllers\Api\RecruitmentController::class, 'rankings']);
+        Route::post('/assess-readiness/{pds}/{standard}', [App\Http\Controllers\Api\RecruitmentController::class, 'assessReadiness']);
     });
     
     // Data Subject Requests (Privacy Compliance)
     Route::prefix('privacy')->group(function () {
-        Route::post('/consent', 'PrivacyController@giveConsent');
-        Route::delete('/consent/{type}', 'PrivacyController@withdrawConsent');
-        Route::post('/data-request', 'PrivacyController@submitRequest');
-        Route::get('/my-data', 'PrivacyController@downloadMyData');
+        Route::post('/consent', [App\Http\Controllers\Api\PrivacyController::class, 'giveConsent']);
+        Route::delete('/consent/{type}', [App\Http\Controllers\Api\PrivacyController::class, 'withdrawConsent']);
+        Route::post('/data-request', [App\Http\Controllers\Api\PrivacyController::class, 'submitRequest']);
+        Route::get('/my-data', [App\Http\Controllers\Api\PrivacyController::class, 'downloadMyData']);
     });
 });

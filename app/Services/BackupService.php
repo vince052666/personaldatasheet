@@ -27,18 +27,32 @@ class BackupService
             // Ensure directory exists
             File::ensureDirectoryExists(dirname($path));
 
-            // Generate backup using mysqldump
+            // Use Laravel's DB connection for backup
+            $database = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+            $host = config('database.connections.mysql.host');
+
+            // Create my.cnf file with credentials for security
+            $cnfPath = storage_path('app/backups/.my.cnf');
+            $cnfContent = "[client]\nuser={$username}\npassword={$password}\nhost={$host}\n";
+            file_put_contents($cnfPath, $cnfContent);
+            chmod($cnfPath, 0600); // Secure the file
+
+            // Generate backup using mysqldump with config file
             $command = sprintf(
-                'mysqldump -u%s -p%s %s > %s',
-                config('database.connections.mysql.username'),
-                config('database.connections.mysql.password'),
-                config('database.connections.mysql.database'),
-                $path
+                'mysqldump --defaults-extra-file=%s %s > %s',
+                escapeshellarg($cnfPath),
+                escapeshellarg($database),
+                escapeshellarg($path)
             );
 
             $process = Process::fromShellCommandline($command);
             $process->setTimeout(3600); // 1 hour timeout
             $process->run();
+
+            // Remove credentials file immediately
+            @unlink($cnfPath);
 
             if (!$process->isSuccessful()) {
                 throw new \Exception($process->getErrorOutput());
@@ -65,6 +79,11 @@ class BackupService
 
             return $log;
         } catch (\Exception $e) {
+            // Ensure credentials file is removed on error
+            if (isset($cnfPath) && file_exists($cnfPath)) {
+                @unlink($cnfPath);
+            }
+            
             $log->update([
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
