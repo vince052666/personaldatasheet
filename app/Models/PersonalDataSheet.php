@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AgencyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ class PersonalDataSheet extends Model
 
     protected $fillable = [
         'user_id',
+        'agency_id',
         'surname',
         'first_name',
         'middle_name',
@@ -99,6 +101,11 @@ class PersonalDataSheet extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function agency(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
     }
 
     public function workExperiences(): HasMany
