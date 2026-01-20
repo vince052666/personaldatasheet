@@ -9,10 +9,8 @@ class ExportService
 {
     public function exportPDSToPDF(PersonalDataSheet $pds): string
     {
-        // This would use dompdf or similar to generate PDF
-        // For now, return a placeholder path
-        
-        $html = view('exports.pds-pdf', compact('pds'))->render();
+        // Using the correct CSC Form 212 template
+        $html = view('exports.csc-form-212', compact('pds'))->render();
         
         // Using dompdf (when installed)
         // $pdf = \PDF::loadHTML($html);

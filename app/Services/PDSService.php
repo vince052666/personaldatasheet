@@ -13,7 +13,7 @@ class PDSService
         protected VersioningService $versioningService
     ) {}
 
-    public function createPDS(User $user, array $data): PersonalDataSheet
+    public function createPDS(array $data, User $user): PersonalDataSheet
     {
         return DB::transaction(function () use ($user, $data) {
             // Set all current PDS to not current

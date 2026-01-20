@@ -84,7 +84,8 @@ class AIAnalysisService
             $issues[] = 'Invalid mobile number format';
         }
         
-        if ($pds->height && ($pds->height < 100 || $pds->height > 250)) {
+        // Height is in meters, convert to cm for validation
+        if ($pds->height && ($pds->height < 1.0 || $pds->height > 2.5)) {
             $score -= 10;
             $issues[] = 'Height out of normal range';
         }

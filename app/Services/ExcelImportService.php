@@ -112,7 +112,7 @@ class ExcelImportService
             'email_address' => $row['email'] ?? null,
         ];
 
-        return $this->pdsService->createPDS($user, $pdsData);
+        return $this->pdsService->createPDS($pdsData, $user);
     }
 
     public function exportTemplate(): array

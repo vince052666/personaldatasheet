@@ -33,12 +33,13 @@ class ProcessOCR implements ShouldQueue
         }
 
         try {
-            if (class_exists(TesseractOCR::class)) {
-                $ocr = new TesseractOCR($filePath);
-                $text = $ocr->run();
-            } else {
-                $text = "OCR processing requires Tesseract installation. This is a stub.";
+            // Check if Tesseract is available
+            if (!class_exists(TesseractOCR::class)) {
+                throw new \Exception('Tesseract OCR library not installed. Please install thiagoalessio/tesseract_ocr and Tesseract binary.');
             }
+            
+            $ocr = new TesseractOCR($filePath);
+            $text = $ocr->run();
             
             $parsedData = $this->parseOCRText($text);
             

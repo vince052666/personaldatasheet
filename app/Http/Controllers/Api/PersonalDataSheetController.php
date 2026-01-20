@@ -77,7 +77,7 @@ class PersonalDataSheetController extends Controller
             'position' => 'nullable|string|max:255',
         ]);
 
-        $pds = $this->pdsService->createPDS($request->user(), $validated);
+        $pds = $this->pdsService->createPDS($validated, $request->user());
         
         Cache::tags(['pds'])->flush();
 
