@@ -46,7 +46,7 @@ class PDSService
         });
     }
 
-    public function updatePDS(PersonalDataSheet $pds, array $data): PersonalDataSheet
+    public function updatePDS(PersonalDataSheet $pds, array $data, ?User $user = null): PersonalDataSheet
     {
         return DB::transaction(function () use ($pds, $data) {
             $oldData = $pds->toArray();

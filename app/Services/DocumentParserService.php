@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DocumentUpload;
 use App\Models\PersonalDataSheet;
+use App\Jobs\ProcessOCR;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,6 +41,11 @@ class DocumentParserService
                 'parsed_data' => $parsedData,
                 'status' => 'completed',
             ]);
+            
+            // Queue OCR processing for images and PDFs
+            if ($this->supportsOCR($document->mime_type)) {
+                ProcessOCR::dispatch($document);
+            }
         } catch (\Exception $e) {
             $document->update([
                 'status' => 'failed',
@@ -48,6 +54,12 @@ class DocumentParserService
         }
 
         return $document;
+    }
+
+    protected function supportsOCR(string $mimeType): bool
+    {
+        return str_contains($mimeType, 'pdf') || 
+               str_contains($mimeType, 'image');
     }
 
     protected function validateFile(UploadedFile $file): void
@@ -127,10 +139,11 @@ class DocumentParserService
         
         return [
             'type' => 'pdf',
-            'extracted_text' => 'PDF parsing not yet implemented',
+            'extracted_text' => 'PDF parsing queued for OCR processing',
             'metadata' => [
                 'pages' => 0,
                 'size' => $file->getSize(),
+                'ocr_queued' => true,
             ],
         ];
     }
@@ -151,16 +164,22 @@ class DocumentParserService
 
     protected function parseImage(UploadedFile $file): array
     {
-        // Placeholder for image OCR
-        // You would use libraries like tesseract-ocr or cloud OCR services
+        // Get basic image info
+        try {
+            [$width, $height] = getimagesize($file->getRealPath());
+        } catch (\Exception $e) {
+            $width = 0;
+            $height = 0;
+        }
         
         return [
             'type' => 'image',
-            'extracted_text' => 'Image OCR not yet implemented',
+            'extracted_text' => 'Image queued for OCR processing',
             'metadata' => [
-                'width' => 0,
-                'height' => 0,
+                'width' => $width,
+                'height' => $height,
                 'size' => $file->getSize(),
+                'ocr_queued' => true,
             ],
         ];
     }

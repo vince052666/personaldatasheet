@@ -11,6 +11,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('personal-data-sheets', PersonalDataSheetController::class);
     Route::get('personal-data-sheets/{personalDataSheet}/versions', [PersonalDataSheetController::class, 'versions']);
     Route::post('personal-data-sheets/{personalDataSheet}/export-pdf', [PersonalDataSheetController::class, 'exportPDF']);
+    Route::get('personal-data-sheets/{personalDataSheet}/quality-report', [PersonalDataSheetController::class, 'qualityReport']);
+    Route::get('personal-data-sheets/reports/bulk-quality', [PersonalDataSheetController::class, 'bulkQualityReport']);
+    Route::get('personal-data-sheets/reports/statistics', [PersonalDataSheetController::class, 'statistics']);
     
     // Document Upload Routes
     Route::post('personal-data-sheets/{personalDataSheet}/documents', [DocumentUploadController::class, 'upload']);

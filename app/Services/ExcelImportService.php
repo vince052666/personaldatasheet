@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\PersonalDataSheet;
 use App\Models\User;
+use App\Jobs\ProcessBulkImport;
 use Illuminate\Support\Facades\DB;
 
 class ExcelImportService
@@ -11,6 +12,30 @@ class ExcelImportService
     public function __construct(
         protected PDSService $pdsService
     ) {}
+
+    public function importFromExcel(string $filePath, User $user): array
+    {
+        // This method now supports both sync and async processing
+        // For large files, use queueImport() instead
+        
+        $rows = $this->parseExcelFile($filePath);
+        
+        return $this->importFromArray($rows);
+    }
+
+    public function queueImport(string $filePath, User $user): void
+    {
+        ProcessBulkImport::dispatch($filePath, $user);
+    }
+
+    protected function parseExcelFile(string $filePath): array
+    {
+        // Placeholder: This would use PhpSpreadsheet or similar
+        // to parse the Excel file and return rows
+        
+        // For now, return empty array
+        return [];
+    }
 
     public function importFromArray(array $rows): array
     {
