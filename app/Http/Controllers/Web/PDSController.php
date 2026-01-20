@@ -42,7 +42,7 @@ class PDSController extends Controller
 
     public function create()
     {
-        return view('pds.create');
+        return view('pds.form');
     }
 
     public function store(Request $request)
@@ -76,7 +76,7 @@ class PDSController extends Controller
 
     public function edit(PersonalDataSheet $pd)
     {
-        return view('pds.edit', compact('pd'));
+        return view('pds.form', compact('pd'));
     }
 
     public function update(Request $request, PersonalDataSheet $pd)
@@ -110,8 +110,8 @@ class PDSController extends Controller
             'place_of_birth' => 'required|string|max:255',
             'sex' => 'required|in:Male,Female',
             'civil_status' => 'required|in:Single,Married,Widowed,Separated,Divorced',
-            'height' => 'nullable|numeric|min:100|max:250',
-            'weight' => 'nullable|numeric|min:30|max:200',
+            'height' => 'nullable|numeric|min:100|max:250', // Height in centimeters
+            'weight' => 'nullable|numeric|min:30|max:200', // Weight in kilograms
             'blood_type' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'gsis_id_no' => 'nullable|string|max:50',
             'pagibig_id_no' => 'nullable|string|max:50',
@@ -123,8 +123,6 @@ class PDSController extends Controller
             'email_address' => 'required|email|max:255',
             'department' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
-            'height' => 'nullable|numeric|min:1.0|max:2.5',
-            'weight' => 'nullable|numeric|min:30|max:200',
         ];
     }
 }
