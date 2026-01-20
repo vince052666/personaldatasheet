@@ -187,10 +187,14 @@ class ReconciliationService
 
         if ($totalWithEmail === 0) return 100;
 
-        $validEmails = PersonalDataSheet::where('agency_id', $agency->id)
+        // Use PHP validation instead of database-specific REGEXP
+        $emails = PersonalDataSheet::where('agency_id', $agency->id)
             ->whereNotNull('email')
-            ->where('email', 'REGEXP', '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
-            ->count();
+            ->pluck('email');
+        
+        $validEmails = $emails->filter(function($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        })->count();
 
         return ($validEmails / $totalWithEmail) * 100;
     }

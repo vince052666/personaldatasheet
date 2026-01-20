@@ -205,7 +205,8 @@ class DataMigrationService
                     [
                         'agency_id' => $agencyId,
                         'name' => trim(($data['first_name'] ?? '') . ' ' . ($data['surname'] ?? '')),
-                        'password' => bcrypt('TempPassword123!'), // Temporary password
+                        'password' => bcrypt(bin2hex(random_bytes(16))), // Random secure password
+                        'password_change_required' => true, // Force password reset on first login
                     ]
                 );
                 $userId = $user->id;

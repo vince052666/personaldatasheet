@@ -264,21 +264,26 @@ class AIConsoleService
     {
         $findings = [];
 
-        // Email duplicates
+        // Email duplicates - use database-agnostic approach
         $emailDuplicates = PersonalDataSheet::where('agency_id', $agency->id)
             ->whereNotNull('email')
-            ->select('email', \DB::raw('COUNT(*) as count, GROUP_CONCAT(id) as ids'))
+            ->select('email')
             ->groupBy('email')
-            ->having('count', '>', 1)
+            ->havingRaw('COUNT(*) > 1')
             ->get();
 
         foreach ($emailDuplicates as $dup) {
+            // Get all IDs for this email using Laravel collections
+            $duplicateRecords = PersonalDataSheet::where('agency_id', $agency->id)
+                ->where('email', $dup->email)
+                ->pluck('id');
+            
             $findings[] = [
                 'type' => 'duplicate',
                 'field' => 'email',
                 'value' => $dup->email,
-                'count' => $dup->count,
-                'pds_ids' => explode(',', $dup->ids),
+                'count' => $duplicateRecords->count(),
+                'pds_ids' => $duplicateRecords->toArray(),
                 'severity' => 'high',
             ];
         }

@@ -17,6 +17,14 @@ class MultiAgencySeeder extends Seeder
         // Create government agencies
         $agencies = [
             [
+                'code' => 'SUPER',
+                'name' => 'System Administration',
+                'description' => 'System-wide administration and oversight agency',
+                'contact_email' => 'admin@pds.gov.ph',
+                'contact_phone' => '+63-2-0000-0000',
+                'is_active' => true,
+            ],
+            [
                 'code' => 'DILG',
                 'name' => 'Department of the Interior and Local Government',
                 'description' => 'Promotes peace and order, ensures public safety, and strengthens local government capability',
