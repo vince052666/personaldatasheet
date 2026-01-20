@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\AgencyController;
+use App\Http\Controllers\Api\AIConsoleController;
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\DocumentUploadController;
 use App\Http\Controllers\Api\PersonalDataSheetController;
@@ -61,5 +63,31 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         Route::delete('/consent/{type}', [App\Http\Controllers\Api\PrivacyController::class, 'withdrawConsent']);
         Route::post('/data-request', [App\Http\Controllers\Api\PrivacyController::class, 'submitRequest']);
         Route::get('/my-data', [App\Http\Controllers\Api\PrivacyController::class, 'downloadMyData']);
+    });
+    
+    // Agency Management Routes
+    Route::prefix('agencies')->group(function () {
+        Route::get('/', [AgencyController::class, 'index']);
+        Route::post('/', [AgencyController::class, 'store'])->middleware('can:create-agency');
+        Route::get('/{agency}', [AgencyController::class, 'show']);
+        Route::put('/{agency}', [AgencyController::class, 'update']);
+        Route::delete('/{agency}', [AgencyController::class, 'destroy'])->middleware('can:delete-agency');
+        Route::get('/{agency}/users', [AgencyController::class, 'users']);
+        Route::get('/{agency}/dashboard', [AgencyController::class, 'dashboard']);
+        Route::match(['get', 'post'], '/{agency}/settings', [AgencyController::class, 'settings']);
+    });
+    
+    // AI Console Routes
+    Route::prefix('ai-console')->group(function () {
+        Route::get('/', [AIConsoleController::class, 'index']);
+        Route::post('/session/start', [AIConsoleController::class, 'startSession']);
+        Route::post('/analyze-inconsistencies', [AIConsoleController::class, 'analyzeInconsistencies']);
+        Route::post('/validate-data', [AIConsoleController::class, 'validateData']);
+        Route::post('/suggest-corrections', [AIConsoleController::class, 'suggestCorrections']);
+        Route::post('/detect-duplicates', [AIConsoleController::class, 'detectDuplicates']);
+        Route::get('/review-queue', [AIConsoleController::class, 'reviewQueue']);
+        Route::post('/logs/{log}/review', [AIConsoleController::class, 'review']);
+        Route::get('/logs/{log}', [AIConsoleController::class, 'show']);
+        Route::get('/session/{sessionId}/history', [AIConsoleController::class, 'sessionHistory']);
     });
 });

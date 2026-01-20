@@ -54,6 +54,16 @@ class Agency extends Model
         return $this->hasMany(ActivityLog::class);
     }
 
+    public function importBatches(): HasMany
+    {
+        return $this->hasMany(ImportBatch::class);
+    }
+
+    public function aiConsoleLogs(): HasMany
+    {
+        return $this->hasMany(AiConsoleLog::class);
+    }
+
     public function isSuperAgency(): bool
     {
         return $this->code === 'SUPER';

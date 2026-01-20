@@ -26,6 +26,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\LogActivity::class, // Added
+            \App\Http\Middleware\TenantMiddleware::class, // Multi-tenancy support
         ],
 
         'api' => [
@@ -34,6 +35,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\RoleBasedRateLimiting::class, // Added
             \App\Http\Middleware\LogActivity::class, // Added
+            \App\Http\Middleware\TenantMiddleware::class, // Multi-tenancy support
         ],
     ];
 
