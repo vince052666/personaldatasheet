@@ -59,7 +59,8 @@ class PDSService
             $this->updateRelatedRecords($pds, $data);
 
             // Create new version
-            $this->versioningService->createVersion($pds, $data['change_description'] ?? 'Updated PDS');
+            $changeDescription = $data['change_description'] ?? 'Updated PDS';
+            $this->versioningService->createVersion($pds, $changeDescription);
 
             // Audit log
             $this->auditLogService->log($pds, 'updated', $oldData, $pds->fresh()->toArray());

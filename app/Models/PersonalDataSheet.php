@@ -136,9 +136,9 @@ class PersonalDataSheet extends Model
     public function getFullNameAttribute(): string
     {
         $parts = array_filter([
+            $this->surname,
             $this->first_name,
             $this->middle_name,
-            $this->surname,
             $this->name_extension,
         ]);
 
