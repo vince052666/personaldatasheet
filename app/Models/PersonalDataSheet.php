@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PersonalDataSheet extends Model
@@ -72,6 +73,12 @@ class PersonalDataSheet extends Model
         'government_issued_id',
         'is_current',
         'version',
+        'status',
+        'department',
+        'position',
+        'reviewed_at',
+        'reviewed_by',
+        'review_notes',
     ];
 
     protected function casts(): array
@@ -85,6 +92,7 @@ class PersonalDataSheet extends Model
             'references' => 'array',
             'government_issued_id' => 'array',
             'is_current' => 'boolean',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -133,6 +141,16 @@ class PersonalDataSheet extends Model
         return $this->hasMany(DocumentUpload::class);
     }
 
+    public function dataQualityScore(): HasOne
+    {
+        return $this->hasOne(DataQualityScore::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function getFullNameAttribute(): string
     {
         $parts = array_filter([
@@ -143,5 +161,15 @@ class PersonalDataSheet extends Model
         ]);
 
         return implode(' ', $parts);
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('surname', 'like', "%{$search}%")
+                ->orWhere('first_name', 'like', "%{$search}%")
+                ->orWhere('middle_name', 'like', "%{$search}%")
+                ->orWhere('email_address', 'like', "%{$search}%");
+        });
     }
 }

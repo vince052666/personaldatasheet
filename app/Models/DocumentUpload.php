@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentUpload extends Model
 {
@@ -18,12 +19,15 @@ class DocumentUpload extends Model
         'status',
         'error_message',
         'uploaded_by',
+        'processing_status',
+        'processed_at',
     ];
 
     protected function casts(): array
     {
         return [
             'parsed_data' => 'array',
+            'processed_at' => 'datetime',
         ];
     }
 
@@ -35,5 +39,10 @@ class DocumentUpload extends Model
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function ocrResults(): HasMany
+    {
+        return $this->hasMany(OcrResult::class);
     }
 }
