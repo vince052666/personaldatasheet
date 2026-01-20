@@ -16,7 +16,6 @@ class AIConsoleController extends Controller
     public function __construct(AIConsoleService $aiConsoleService)
     {
         $this->aiConsoleService = $aiConsoleService;
-        $this->middleware('auth');
     }
 
     public function index(Request $request)

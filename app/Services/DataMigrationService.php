@@ -183,7 +183,7 @@ class DataMigrationService
             if ($pds) return $pds;
         }
 
-        // Check by SSS number
+        // Check by SSS number (Philippine Social Security System ID)
         if (!empty($data['sss_no'])) {
             $pds = PersonalDataSheet::where('agency_id', $agencyId)
                 ->where('sss_no', $data['sss_no'])

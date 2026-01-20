@@ -66,7 +66,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     });
     
     // Agency Management Routes
-    Route::prefix('agencies')->group(function () {
+    Route::prefix('agencies')->middleware('auth')->group(function () {
         Route::get('/', [AgencyController::class, 'index']);
         Route::post('/', [AgencyController::class, 'store'])->middleware('can:create-agency');
         Route::get('/{agency}', [AgencyController::class, 'show']);
@@ -78,7 +78,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     });
     
     // AI Console Routes
-    Route::prefix('ai-console')->group(function () {
+    Route::prefix('ai-console')->middleware('auth')->group(function () {
         Route::get('/', [AIConsoleController::class, 'index']);
         Route::post('/session/start', [AIConsoleController::class, 'startSession']);
         Route::post('/analyze-inconsistencies', [AIConsoleController::class, 'analyzeInconsistencies']);

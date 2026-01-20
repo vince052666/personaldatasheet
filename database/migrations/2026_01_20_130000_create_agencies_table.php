@@ -24,15 +24,8 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        // Add default super-agency for cross-agency super admins
-        DB::table('agencies')->insert([
-            'code' => 'SUPER',
-            'name' => 'Super Admin Agency',
-            'description' => 'Cross-agency administration',
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Note: Default super-agency is created via MultiAgencySeeder
+        // Run: php artisan db:seed --class=MultiAgencySeeder
     }
 
     public function down(): void

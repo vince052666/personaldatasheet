@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\User;
+use App\Services\ReconciliationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class AgencyController extends Controller
 {
-    public function __construct()
+    protected $reconciliationService;
+
+    public function __construct(ReconciliationService $reconciliationService)
     {
         $this->middleware('auth');
+        $this->reconciliationService = $reconciliationService;
     }
 
     public function index()
@@ -159,7 +163,7 @@ class AgencyController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get(),
-            'data_quality_score' => app(ReconciliationService::class)->generateDataQualityScore($agency),
+            'data_quality_score' => $this->reconciliationService->generateDataQualityScore($agency),
         ];
 
         return response()->json([

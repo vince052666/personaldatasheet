@@ -13,6 +13,11 @@ class PersonalDataSheet extends Model
 {
     use SoftDeletes;
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AgencyScope());
+    }
+
     protected $fillable = [
         'user_id',
         'agency_id',

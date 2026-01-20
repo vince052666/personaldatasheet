@@ -169,13 +169,18 @@ EOT;
 
         $pdf->MultiCell(0, 5, $certText, 0, 'L');
         
-        // Add watermark if approved
+        // Add watermark if approved (using standard TCPDF methods)
         if ($pds->approval_status === 'approved') {
             $pdf->SetAlpha(0.2);
             $pdf->SetFont('Arial', 'B', 60);
             $pdf->SetTextColor(0, 128, 0);
-            $pdf->RotatedText(50, 150, 'APPROVED', 45);
+            // Use standard text rotation
+            $pdf->StartTransform();
+            $pdf->Rotate(45, 105, 150);
+            $pdf->Text(50, 150, 'APPROVED');
+            $pdf->StopTransform();
             $pdf->SetAlpha(1);
+            $pdf->SetTextColor(0, 0, 0);
         }
 
         $filename = 'CERTIFICATION.pdf';

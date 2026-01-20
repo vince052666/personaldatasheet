@@ -79,11 +79,14 @@ class MultiAgencySeeder extends Seeder
             ['name' => 'Agency Administrator']
         );
 
+        // Generate secure random password
+        $randomPassword = bin2hex(random_bytes(8)); // 16 character random password
+
         $user = User::create([
             'agency_id' => $agency->id,
             'name' => $agency->code . ' Administrator',
             'email' => strtolower($agency->code) . '-admin@gov.ph',
-            'password' => Hash::make('password'), // Change in production!
+            'password' => Hash::make($randomPassword),
             'department' => 'Administration',
             'position' => 'System Administrator',
             'employee_id' => $agency->code . '-ADMIN-001',
@@ -93,6 +96,7 @@ class MultiAgencySeeder extends Seeder
         $user->roles()->attach($adminRole);
 
         $this->command->info("  - Created admin user: {$user->email}");
+        $this->command->warn("    PASSWORD: {$randomPassword} (save this securely!)");
     }
 
     protected function createSuperAdmin(): void
@@ -104,11 +108,14 @@ class MultiAgencySeeder extends Seeder
             ['name' => 'Super Administrator']
         );
 
+        // Generate secure random password
+        $randomPassword = bin2hex(random_bytes(12)); // 24 character random password
+
         $superAdmin = User::create([
             'agency_id' => $superAgency->id,
             'name' => 'Super Administrator',
             'email' => 'superadmin@pds.gov.ph',
-            'password' => Hash::make('SuperAdmin123!'), // Change in production!
+            'password' => Hash::make($randomPassword),
             'department' => 'IT Department',
             'position' => 'System Administrator',
             'employee_id' => 'SUPER-ADMIN-001',
@@ -118,5 +125,6 @@ class MultiAgencySeeder extends Seeder
         $superAdmin->roles()->attach($superAdminRole);
 
         $this->command->info("Created super admin: {$superAdmin->email}");
+        $this->command->warn("PASSWORD: {$randomPassword} (save this securely!)");
     }
 }
