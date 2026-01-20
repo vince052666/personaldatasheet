@@ -173,3 +173,87 @@ class PersonalDataSheet extends Model
         });
     }
 }
+
+    public function approvalWorkflow(): HasOne
+    {
+        return $this->hasOne(ApprovalWorkflow::class)->latest();
+    }
+
+    public function rankings(): HasMany
+    {
+        return $this->hasMany(CandidateRanking::class);
+    }
+
+    public function appointmentReadiness(): HasMany
+    {
+        return $this->hasMany(AppointmentReadiness::class);
+    }
+
+    public function archivedRecord(): HasOne
+    {
+        return $this->hasOne(ArchivedRecord::class, 'archivable_id')
+            ->where('archivable_type', self::class);
+    }
+
+    // Accessor for encrypted fields
+    public function getTinAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    public function getSssNoAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    public function getPagibigNoAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    public function getPhilhealthNoAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    public function getResidentialAddressAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    public function getPermanentAddressAttribute($value)
+    {
+        return $value ? decrypt($value) : null;
+    }
+
+    // Mutator for encrypted fields
+    public function setTinAttribute($value)
+    {
+        $this->attributes['tin'] = $value ? encrypt($value) : null;
+    }
+
+    public function setSssNoAttribute($value)
+    {
+        $this->attributes['sss_no'] = $value ? encrypt($value) : null;
+    }
+
+    public function setPagibigNoAttribute($value)
+    {
+        $this->attributes['pagibig_no'] = $value ? encrypt($value) : null;
+    }
+
+    public function setPhilhealthNoAttribute($value)
+    {
+        $this->attributes['philhealth_no'] = $value ? encrypt($value) : null;
+    }
+
+    public function setResidentialAddressAttribute($value)
+    {
+        $this->attributes['residential_address'] = $value ? encrypt($value) : null;
+    }
+
+    public function setPermanentAddressAttribute($value)
+    {
+        $this->attributes['permanent_address'] = $value ? encrypt($value) : null;
+    }
+}
