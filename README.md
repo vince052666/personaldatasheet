@@ -1,9 +1,35 @@
-# Personal Data Sheet (PDS) Management System
+# Laravel PDS Management System - Multi-Agency Edition
 
-A comprehensive Laravel-based Personal Data Sheet (PDS) management system compliant with Civil Service Commission (CSC) Form 212 standards.
+A comprehensive **Multi-Agency Personal Data Sheet (PDS) Management System** built with Laravel for Philippine government agencies. This enterprise-grade system supports multiple government agencies with complete data isolation, advanced data migration capabilities, AI-assisted validation, and comprehensive reporting.
 
 [![Tests](https://github.com/vince052666/personaldatasheet/workflows/tests/badge.svg)](https://github.com/vince052666/personaldatasheet/actions)
 [![License](https://img.shields.io/github/license/vince052666/personaldatasheet)](LICENSE)
+
+## 🌟 Multi-Agency Features (New!)
+
+### Multi-Tenancy
+- **Complete Data Isolation**: Each agency has isolated data with automatic scoping
+- **Agency Branding**: Custom logos, colors, and settings per agency
+- **Super Admin Access**: Cross-agency oversight and management
+- **Scalable Architecture**: Support for 100+ government agencies
+
+### Enterprise Data Migration
+- **Resumable Batch Processing**: Import thousands of records safely
+- **Automatic Deduplication**: Email, Employee ID, SSN, TIN matching
+- **Error Quarantine**: Detailed error tracking and resolution
+- **Progress Tracking**: Real-time import monitoring
+
+### AI Console
+- **Inconsistency Detection**: Find errors and anomalies automatically
+- **Data Validation**: AI-powered quality checks
+- **Human-in-the-Loop**: All suggestions require approval
+- **Full Audit Trail**: Complete traceability
+
+### Enhanced PDF & Bundling
+- **Document Bundles**: ZIP packages with PDS + attachments
+- **Certification Hashes**: SHA-256 verification
+- **Work Experience Sheet**: Extended employment history
+- **Approval Watermarks**: Visual approval indicators
 
 ## Features
 
@@ -48,6 +74,65 @@ A comprehensive Laravel-based Personal Data Sheet (PDS) management system compli
 
 ```bash
 # Clone the repository
+git clone https://github.com/vince052666/personaldatasheet.git
+cd personaldatasheet
+
+# Install dependencies
+composer install
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Configure database in .env
+# Then run migrations
+php artisan migrate
+
+# Seed multi-agency data (optional)
+php artisan db:seed --class=MultiAgencySeeder
+
+# Create your first agency
+php artisan agency:create DILG "Department of Interior and Local Government" \
+  --email=dilg@gov.ph --phone="+63-2-1234-5678"
+
+# Start development server
+php artisan serve
+npm run dev
+```
+
+## 📚 Documentation
+
+- **[Multi-Agency Guide](MULTI_AGENCY_GUIDE.md)** - Complete guide to multi-agency features
+- **[Implementation Summary](IMPLEMENTATION_COMPLETE_V2.md)** - Feature overview and deployment guide
+- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment instructions
+- **[API Documentation](#api-endpoints)** - API reference
+
+## 🚀 Quick Command Reference
+
+### Agency Management
+```bash
+# Create agency
+php artisan agency:create CODE "Name" --email=... --phone=...
+
+# List agencies
+php artisan agency:list
+```
+
+### Data Import
+```bash
+# Import PDS data from CSV
+php artisan pds:import AGENCY file.csv
+
+# Resume interrupted import
+php artisan pds:import-resume BATCH_ID
+```
+
+### Quality Reports
+```bash
+# Generate data quality report
+php artisan pds:quality-report AGENCY
+```
 git clone https://github.com/vince052666/personaldatasheet.git
 cd personaldatasheet
 
