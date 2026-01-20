@@ -39,7 +39,13 @@ return [
     */
     'upload' => [
         'max_size' => env('PDS_MAX_UPLOAD_SIZE', 10240), // KB
-        'supported_formats' => explode(',', env('PDS_SUPPORTED_FORMATS', 'pdf,doc,docx,jpg,jpeg,png')),
+        'supported_formats' => explode(',', env('PDS_SUPPORTED_FORMATS', 'pdf,jpg,jpeg,png')),
+        'allowed_mime_types' => [
+            'application/pdf',
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+        ],
     ],
 
     /*

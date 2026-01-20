@@ -51,14 +51,21 @@ class ExcelImportService
         $user = User::where('email', $row['email'])->first();
         
         if (!$user) {
+            // Generate a secure random password
+            $temporaryPassword = bin2hex(random_bytes(16));
+            
             $user = User::create([
                 'name' => $row['name'],
                 'email' => $row['email'],
-                'password' => bcrypt('password'), // Default password
+                'password' => bcrypt($temporaryPassword),
                 'employee_id' => $row['employee_id'] ?? null,
                 'department' => $row['department'] ?? null,
                 'position' => $row['position'] ?? null,
+                'password_change_required' => true, // Flag to force password change on first login
             ]);
+            
+            // TODO: Send password reset email to user
+            // This should be implemented to notify users of their account creation
         }
 
         // Prepare PDS data

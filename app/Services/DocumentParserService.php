@@ -14,6 +14,9 @@ class DocumentParserService
         UploadedFile $file,
         string $documentType
     ): DocumentUpload {
+        // Validate file before processing
+        $this->validateFile($file);
+        
         // Store the file
         $path = $file->store('documents', 'private');
 
@@ -45,6 +48,66 @@ class DocumentParserService
         }
 
         return $document;
+    }
+
+    protected function validateFile(UploadedFile $file): void
+    {
+        $allowedMimes = config('pds.upload.allowed_mime_types', [
+            'application/pdf',
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+        ]);
+        
+        $fileMime = $file->getMimeType();
+        
+        if (!in_array($fileMime, $allowedMimes)) {
+            throw new \InvalidArgumentException(
+                'File type not allowed. Allowed types: ' . implode(', ', $allowedMimes)
+            );
+        }
+        
+        // Verify file signature matches MIME type (basic check)
+        $fileSignature = $this->getFileSignature($file);
+        if (!$this->verifyFileSignature($fileSignature, $fileMime)) {
+            throw new \InvalidArgumentException('File content does not match file type');
+        }
+        
+        $maxSize = config('pds.upload.max_size', 10240) * 1024; // Convert to bytes
+        if ($file->getSize() > $maxSize) {
+            throw new \InvalidArgumentException('File size exceeds maximum allowed size');
+        }
+    }
+
+    protected function getFileSignature(UploadedFile $file): string
+    {
+        $handle = fopen($file->getRealPath(), 'rb');
+        $signature = fread($handle, 8);
+        fclose($handle);
+        
+        return bin2hex($signature);
+    }
+
+    protected function verifyFileSignature(string $signature, string $mimeType): bool
+    {
+        $signatures = [
+            'application/pdf' => ['255044462d'], // %PDF-
+            'image/jpeg' => ['ffd8ffe0', 'ffd8ffe1', 'ffd8ffe2'],
+            'image/png' => ['89504e470d0a1a0a'],
+        ];
+        
+        foreach ($signatures as $mime => $sigs) {
+            if (str_contains($mimeType, $mime)) {
+                foreach ($sigs as $sig) {
+                    if (str_starts_with($signature, $sig)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        
+        return false;
     }
 
     protected function parseByMimeType(UploadedFile $file, string $mimeType): array
