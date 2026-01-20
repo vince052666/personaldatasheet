@@ -123,6 +123,8 @@ class PDSController extends Controller
             'email_address' => 'required|email|max:255',
             'department' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
+            'height' => 'nullable|numeric|min:1.0|max:2.5',
+            'weight' => 'nullable|numeric|min:30|max:200',
         ];
     }
 }
