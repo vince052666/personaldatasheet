@@ -34,10 +34,12 @@ class BackupService
             $host = config('database.connections.mysql.host');
 
             // Create my.cnf file with credentials for security
+            // Set umask to ensure file is created with correct permissions
+            $oldUmask = umask(0077); // Creates files with 0600 permissions
             $cnfPath = storage_path('app/backups/.my.cnf');
             $cnfContent = "[client]\nuser={$username}\npassword={$password}\nhost={$host}\n";
-            file_put_contents($cnfPath, $cnfContent);
-            chmod($cnfPath, 0600); // Secure the file
+            file_put_contents($cnfPath, $cnfContent, LOCK_EX);
+            umask($oldUmask); // Restore original umask
 
             // Generate backup using mysqldump with config file
             $command = sprintf(

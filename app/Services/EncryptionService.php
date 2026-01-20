@@ -40,7 +40,8 @@ class EncryptionService
             return Crypt::decryptString($value);
         } catch (DecryptException $e) {
             \Log::error('Decryption failed: ' . $e->getMessage());
-            return $value; // Return as-is if decryption fails (might be unencrypted)
+            // Throw exception instead of returning potentially encrypted data
+            throw new \RuntimeException('Failed to decrypt sensitive field. Data may be corrupted.');
         }
     }
 
@@ -84,19 +85,31 @@ class EncryptionService
         }
     }
 
+    /**
+     * Rotate encryption key for a model's encrypted fields
+     * NOTE: This should be used with caution and requires temporary configuration
+     * Use Laravel's proper key rotation process instead for production
+     */
     public function rotateKey(string $oldKey, string $newKey, \Illuminate\Database\Eloquent\Model $model, array $fields): void
     {
+        // Create temporary encryptors with specific keys
+        $oldCrypt = new \Illuminate\Encryption\Encrypter($oldKey, config('app.cipher'));
+        $newCrypt = new \Illuminate\Encryption\Encrypter($newKey, config('app.cipher'));
+        
         foreach ($fields as $field) {
             $value = $model->$field;
             
             if ($value) {
-                // Decrypt with old key
-                config(['app.key' => $oldKey]);
-                $decrypted = $this->decrypt($value);
-                
-                // Re-encrypt with new key
-                config(['app.key' => $newKey]);
-                $model->$field = $this->encrypt($decrypted);
+                try {
+                    // Decrypt with old key
+                    $decrypted = $oldCrypt->decryptString($value);
+                    
+                    // Re-encrypt with new key
+                    $model->$field = $newCrypt->encryptString($decrypted);
+                } catch (DecryptException $e) {
+                    \Log::error("Failed to rotate key for field {$field}: " . $e->getMessage());
+                    throw new \RuntimeException("Key rotation failed for field {$field}");
+                }
             }
         }
 
