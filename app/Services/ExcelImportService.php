@@ -1,0 +1,144 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\PersonalDataSheet;
+use App\Models\User;
+use App\Jobs\ProcessBulkImport;
+use Illuminate\Support\Facades\DB;
+
+class ExcelImportService
+{
+    public function __construct(
+        protected PDSService $pdsService
+    ) {}
+
+    public function importFromExcel(string $filePath, User $user): array
+    {
+        // This method now supports both sync and async processing
+        // For large files, use queueImport() instead
+        
+        $rows = $this->parseExcelFile($filePath);
+        
+        return $this->importFromArray($rows);
+    }
+
+    public function queueImport(string $filePath, User $user): void
+    {
+        ProcessBulkImport::dispatch($filePath, $user);
+    }
+
+    protected function parseExcelFile(string $filePath): array
+    {
+        // Placeholder: This would use PhpSpreadsheet or similar
+        // to parse the Excel file and return rows
+        
+        // For now, return empty array
+        return [];
+    }
+
+    public function importFromArray(array $rows): array
+    {
+        $results = [
+            'success' => 0,
+            'failed' => 0,
+            'errors' => [],
+        ];
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($rows as $index => $row) {
+                try {
+                    $this->importRow($row);
+                    $results['success']++;
+                } catch (\Exception $e) {
+                    $results['failed']++;
+                    $results['errors'][] = [
+                        'row' => $index + 1,
+                        'message' => $e->getMessage(),
+                    ];
+                }
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return $results;
+    }
+
+    protected function importRow(array $row): PersonalDataSheet
+    {
+        // Find or create user
+        $user = User::where('email', $row['email'])->first();
+        
+        if (!$user) {
+            // Generate a secure random password
+            $temporaryPassword = bin2hex(random_bytes(16));
+            
+            $user = User::create([
+                'name' => $row['name'],
+                'email' => $row['email'],
+                'password' => bcrypt($temporaryPassword),
+                'employee_id' => $row['employee_id'] ?? null,
+                'department' => $row['department'] ?? null,
+                'position' => $row['position'] ?? null,
+                'password_change_required' => true, // Flag to force password change on first login
+            ]);
+            
+            // TODO: Send password reset email to user
+            // This should be implemented to notify users of their account creation
+        }
+
+        // Prepare PDS data
+        $pdsData = [
+            'surname' => $row['surname'],
+            'first_name' => $row['first_name'],
+            'middle_name' => $row['middle_name'] ?? null,
+            'name_extension' => $row['name_extension'] ?? null,
+            'date_of_birth' => $row['date_of_birth'],
+            'place_of_birth' => $row['place_of_birth'],
+            'sex' => $row['sex'],
+            'civil_status' => $row['civil_status'],
+            'citizenship' => $row['citizenship'],
+            'residential_city' => $row['residential_city'],
+            'residential_province' => $row['residential_province'],
+            'permanent_city' => $row['permanent_city'],
+            'permanent_province' => $row['permanent_province'],
+            'mobile_no' => $row['mobile_no'] ?? null,
+            'email_address' => $row['email'] ?? null,
+        ];
+
+        return $this->pdsService->createPDS($pdsData, $user);
+    }
+
+    public function exportTemplate(): array
+    {
+        return [
+            'headers' => [
+                'email',
+                'name',
+                'employee_id',
+                'department',
+                'position',
+                'surname',
+                'first_name',
+                'middle_name',
+                'name_extension',
+                'date_of_birth',
+                'place_of_birth',
+                'sex',
+                'civil_status',
+                'citizenship',
+                'residential_city',
+                'residential_province',
+                'permanent_city',
+                'permanent_province',
+                'mobile_no',
+            ],
+        ];
+    }
+}

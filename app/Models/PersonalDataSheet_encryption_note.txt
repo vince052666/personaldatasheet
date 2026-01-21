@@ -1,0 +1,8 @@
+Note: The PersonalDataSheet model uses Laravel's built-in encrypt/decrypt functions
+which include proper error handling. The accessors/mutators will throw exceptions
+if encryption/decryption fails, which is the desired behavior for security.
+
+For production, ensure:
+1. APP_KEY is properly set and never changes
+2. Backups include the APP_KEY securely
+3. Monitor logs for encryption/decryption errors
