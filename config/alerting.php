@@ -9,11 +9,11 @@ return [
 
     'enabled' => env('ALERTING_ENABLED', true),
 
-    'recipients' => [
+    'recipients' => array_filter([
         env('ALERT_EMAIL_1', 'admin@agency.gov.ph'),
         env('ALERT_EMAIL_2'),
         env('ALERT_EMAIL_3'),
-    ],
+    ]),
 
     'thresholds' => [
         'failed_jobs' => env('ALERT_FAILED_JOBS_THRESHOLD', 10),
