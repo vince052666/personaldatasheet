@@ -45,19 +45,18 @@ class RecordLockingTest extends TestCase
 
     public function test_second_user_cannot_edit_locked_record()
     {
+        $pds = PersonalDataSheet::factory()->create([
+            'agency_id' => $this->agency->id,
+        ]);
+
         RecordLock::create([
             'lockable_type' => PersonalDataSheet::class,
-            'lockable_id' => 1,
+            'lockable_id' => $pds->id,
             'user_id' => $this->user1->id,
             'locked_at' => now(),
         ]);
 
         $this->actingAs($this->user2);
-
-        $pds = PersonalDataSheet::factory()->create([
-            'id' => 1,
-            'agency_id' => $this->agency->id,
-        ]);
 
         $response = $this->get(route('pds.edit', $pds));
 

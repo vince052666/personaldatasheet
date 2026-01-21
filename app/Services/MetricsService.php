@@ -135,8 +135,9 @@ class MetricsService
 
     protected function getDiskUsage(): float
     {
-        $total = disk_total_space('/');
-        $free = disk_free_space('/');
+        $path = storage_path();
+        $total = disk_total_space($path);
+        $free = disk_free_space($path);
         return round((($total - $free) / $total) * 100, 2);
     }
 
