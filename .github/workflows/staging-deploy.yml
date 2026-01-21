@@ -1,0 +1,64 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging-pds.gov.ph
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+      
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-dev --optimize-autoloader
+      
+      - name: Install Node dependencies
+        run: npm ci
+      
+      - name: Build assets
+        run: npm run build
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+      
+      - name: Deploy to staging
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='storage/app/*' \
+            --exclude='storage/logs/*' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            . ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ secrets.STAGING_PATH }}/
+      
+      - name: Run migrations
+        run: |
+          ssh ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} \
+            "cd ${{ secrets.STAGING_PATH }} && \
+             php artisan migrate --force && \
+             php artisan config:cache && \
+             php artisan route:cache"
+      
+      - name: Run smoke tests
+        run: |
+          sleep 5
+          curl -f https://staging-pds.gov.ph/health || echo "Health check failed"
